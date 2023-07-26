@@ -240,7 +240,7 @@ class Post(models.Model):
     photo = models.ImageField(verbose_name="이미지", blank=True, null=True)
     created_at = models.DateTimeField(verbose_name="작성일", auto_now_add=True)
     area = models.CharField(verbose_name="지역", max_length=10, choices=AREA_IN_CHOICES)
-    city = models.CharField(max_length=10, choices=AREA_CITY_MAPPING)
+    city = models.CharField(max_length=10, choices=AREA_CITY_MAPPING, null=True)
     prices = models.CharField(max_length=20)
     links = models.URLField(max_length=1024)
     writer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)

@@ -28,6 +28,8 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class LikedSerializer(serializers.ModelSerializer):
+    post = PostSerializer()
+
     class Meta:
         model = Liked
-        fields = "__all__"
+        fields = ["id", "post", "user"]

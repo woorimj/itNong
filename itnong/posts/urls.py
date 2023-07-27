@@ -9,5 +9,5 @@ router.register("posts", PostViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("posts/<int:post_id>/liked/", LikeView.as_view(), name="liked-create"),
+    path("liked/", LikeView.as_view(), name="like"),
 ]

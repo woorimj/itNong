@@ -9,14 +9,14 @@ router = DefaultRouter()
 router.register("posts", PostViewSet)
 
 comment_router = SimpleRouter(trailing_slash=True)
-comment_router.register('comments', CommentViewSet, basename='comment')
+comment_router.register("comments", CommentViewSet, basename="comment")
 
 reply_router = SimpleRouter(trailing_slash=True)
-reply_router.register('replies', ReplyViewSet, basename='reply')
+reply_router.register("replies", ReplyViewSet, basename="reply")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path('posts/<int:post_id>/', include(comment_router.urls)),
-    path('posts/<int:post_id>/comments/<int:comment_id>/', include(reply_router.urls)),
+    path("posts/<int:post_id>/", include(comment_router.urls)),
+    path("posts/<int:post_id>/comments/<int:comment_id>/", include(reply_router.urls)),
     path("liked/", LikeView.as_view(), name="like"),
 ]

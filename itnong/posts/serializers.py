@@ -1,25 +1,25 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Post, Liked, Comment, Reply
+from .models import Post, Comment, Reply, BookMark
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
 
 class PostSerializer(serializers.ModelSerializer):
     writer = serializers.ReadOnlyField(source="writer.username")
-    likes = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     replies = serializers.SerializerMethodField()
+    bookmarks_count = serializers.SerializerMethodField()
 
-    def get_likes(self, obj):
-        return Liked.objects.filter(post=obj.id).count()
-    
     def get_comments(self, obj):
         comments = Comment.objects.filter(post=obj.id)
         return CommentSerializer(comments, many=True).data
-    
+
     def get_replies(self, obj):
         replies = Reply.objects.filter(comment__post=obj.id)
         return ReplySerializer(replies, many=True).data
+
+    def get_bookmarks_count(self, obj):
+        return obj.bookmark_set.count()
 
     class Meta:
         model = Post
@@ -34,26 +34,25 @@ class PostSerializer(serializers.ModelSerializer):
             "prices",
             "links",
             "writer",
-            "likes",
             "comments",
             "replies",
+            "bookmarks_count",
         ]
-
-
-class LikedSerializer(serializers.ModelSerializer):
-    post = PostSerializer()
-
-    class Meta:
-        model = Liked
-        fields = ["id", "post", "user"]
 
 
 class CommentSerializer(ModelSerializer):
     class Meta:
         model = Comment
-        fields = [ 'comment', 'post', 'is_secret']
+        fields = ["comment", "post", "is_secret"]
+
 
 class ReplySerializer(ModelSerializer):
     class Meta:
         model = Reply
-        fields = ['reply', 'is_secret']
+        fields = ["reply", "is_secret"]
+
+
+class BookMarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookMark
+        fields = "__all__"

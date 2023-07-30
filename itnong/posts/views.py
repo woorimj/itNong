@@ -1,10 +1,14 @@
 from django.shortcuts import get_object_or_404
-from .models import Post, Liked, Comment, Reply
-from .serializers import PostSerializer, LikedSerializer, CommentSerializer, ReplySerializer
+from .models import Post, Comment, Reply, BookMark
+from .serializers import (
+    PostSerializer,
+    CommentSerializer,
+    ReplySerializer,
+    BookMarkSerializer,
+)
 
 from rest_framework import viewsets, status, generics, permissions
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet
 
@@ -23,44 +27,40 @@ class PostViewSet(viewsets.ModelViewSet):
             serializer.save(writer=None)  # 또는 기본값으로 설정할 값 사용
 
 
-# 관심 게시글 추가
-class LikeView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = LikedSerializer
-
-    def get_queryset(self):
-        post_id = self.kwargs["post_id"]
-        return Liked.objects.filter(post=post_id, user=self.request.user)
-
-    def perform_create(self, serializer):
-        post_id = self.kwargs["post_id"]
-        post = Post.objects.get(pk=post_id)
-        serializer.save(post=post, user=self.request.user)
-
-
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
-    def get_queryset(self, **kwargs): # Override
-        id = self.kwargs['post_id']
+    def get_queryset(self, **kwargs):  # Override
+        id = self.kwargs["post_id"]
         # 사용자가 인증되지 않은 경우 비밀 댓글은 보이지 않도록 필터링
         if not self.request.user.is_authenticated:
             return self.queryset.filter(post=id, is_secret=False)
         return self.queryset.filter(post=id)
-    
+
 
 class ReplyViewSet(ModelViewSet):
     queryset = Reply.objects.all()
     serializer_class = ReplySerializer
 
     def get_queryset(self, **kwargs):
-        comment_id = self.kwargs['comment_id']
+        comment_id = self.kwargs["comment_id"]
         if not self.request.user.is_authenticated:
             return self.queryset.filter(comment=comment_id, is_secret=False)
         return self.queryset.filter(comment=comment_id)
-    
+
     def perform_create(self, serializer):
         comment_id = self.kwargs["comment_id"]
         comment = get_object_or_404(Comment, id=comment_id)
         serializer.save(comment=comment)
+
+
+class BookMarkViewSet(viewsets.ModelViewSet):
+    queryset = BookMark.objects.all()
+    serializer_class = BookMarkSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(user_id=self.request.user.id)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

@@ -1,6 +1,6 @@
 from rest_framework.routers import SimpleRouter
 from django.urls import path, include
-from .views import PostViewSet, LikeView, CommentViewSet, ReplyViewSet
+from .views import PostViewSet, CommentViewSet, ReplyViewSet, BookMarkViewSet
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -9,14 +9,20 @@ router = DefaultRouter()
 router.register("posts", PostViewSet)
 
 comment_router = SimpleRouter(trailing_slash=True)
-comment_router.register('comments', CommentViewSet, basename='comment')
+comment_router.register("comments", CommentViewSet, basename="comment")
 
 reply_router = SimpleRouter(trailing_slash=True)
-reply_router.register('replies', ReplyViewSet, basename='reply')
+reply_router.register("replies", ReplyViewSet, basename="reply")
+
+bookmark_router = SimpleRouter(trailing_slash=True)
+bookmark_router.register("bookmark", BookMarkViewSet, basename="bookmark")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path('posts/<int:post_id>/', include(comment_router.urls)),
-    path('posts/<int:post_id>/comments/<int:comment_id>/', include(reply_router.urls)),
-    path("liked/", LikeView.as_view(), name="like"),
+    path("posts/<int:post_id>/", include(comment_router.urls)),
+    path("posts/<int:post_id>/comments/<int:comment_id>/", include(reply_router.urls)),
+    path(
+        "posts/<int:post_id>/bookmarks/<int:bookmark_id>/",
+        include(bookmark_router.urls),
+    ),
 ]

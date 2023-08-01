@@ -255,28 +255,27 @@ class Post(models.Model):
         return self.title
 
 
-# 관심글모델
-class Liked(models.Model):
-    user = models.ForeignKey("accounts.CustomUser", on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-
-    class Meta:
-        # 관심글 중복방지
-        unique_together = ("user", "post")
-
-
 class Comment(models.Model):
     comment = models.CharField(max_length=128)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    is_secret = models.BooleanField(verbose_name="비밀 댓글", default=False) # 비밀댓글
+    is_secret = models.BooleanField(verbose_name="비밀 댓글", default=False)  # 비밀댓글
 
     def __str__(self):
         return self.comment
-    
+
+
 class Reply(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies')
+    comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, related_name="replies"
+    )
     reply = models.CharField(max_length=128)
     is_secret = models.BooleanField(verbose_name="비밀 댓글", default=False)
 
     def __str__(self):
         return self.reply
+
+
+# 관심글 등록
+class BookMark(models.Model):
+    post = models.ForeignKey(Post, verbose_name="게시글", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name="작성자", on_delete=models.CASCADE)
